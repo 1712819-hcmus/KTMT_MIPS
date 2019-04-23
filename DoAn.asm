@@ -25,6 +25,7 @@ Error: .asciiz"\nNhap ngay bi loi\n"
 LineDown:.asciiz"\n\n"
 NamNhuan: .asciiz"La nam nhuan !"
 KhongNhuan: .asciiz"Khong phai nam nhuan!"
+ErrorNhap: .asciiz"\nNhap ngay loi!!!Nhap lai\n\n"
 Time: .space 12
 n1:.word 0
 Focus: .space 20
@@ -53,6 +54,16 @@ Main:
  		la $a0,Time
  		la $a1,Focus
 		jal KhoiTaoFOCUS
+		la $a0,Time
+		la $a1,Focus
+		jal KiemTraNgayHopLe
+		beq $v0,$0,KHOITAO.False
+		j CHUCNANG
+	KHOITAO.False:
+		la $a0,ErrorNhap
+		li $v0,4
+		syscall
+		j KHOITAO
 	CHUCNANG:
 		jal MENU
 		li $v0,5 # nhap lua chon
@@ -172,8 +183,26 @@ Main:
 			syscall
 			j CHUCNANG
 		CHUCNANG.MENU8:
-				
-				
+			addi $t1,$s0,-8
+			bne $t1,$0,CHUCNANG.MENU9
+			la $a0,Focus
+			jal XULI8
+			move $t0,$v0
+			move $t1,$v1
+			li $v0,4
+			la $a0,Result
+			syscall
+			li $v0,1
+			move $a0,$t0
+			syscall
+			li $a0,' '
+			li $v0,11
+			syscall
+			li $v0,1
+			move $a0,$t1
+			syscall
+			j CHUCNANG
+		CHUCNANG.MENU9:		
 	THOATCT:	
 		li $v0,10
 		syscall
@@ -1144,8 +1173,42 @@ XULI7:#(Focus1*,Focus2*)
 	addi $sp,$sp,24
 	#tra ve
 	jr $ra
-
-
+#############
+XULI8:# (Focus*) ---> tra ve $v0,$v1 2 nam nhuan gan nhat    
+    	#khai bao stack
+    	addi $sp,$sp,-16
+    	#backup thanh ghi
+    	sw $ra, 0($sp)
+    	sw $t0, 4($sp)
+    	sw $s0, 8($sp)
+    	sw $s1, 12($sp)
+    	
+    	#move $s0,$a0
+    	lw $s0,8($a0) #load nam
+    	move $t0,$s0
+    	LeapYearNear.NhuanLon:
+    		addi $t0,$t0,1
+    		move $a0,$t0
+    		jal LeapYear
+		beq $v0,$0, LeapYearNear.NhuanLon
+		move $s1,$t0 #luu nam 
+	move $t0,$s0	   		
+    	LeapYearNear.NhuanNho:
+    		addi $t0,$t0,-1
+    		move $a0,$t0
+    		jal LeapYear
+		beq $v0,$0, LeapYearNear.NhuanNho
+		move $v1,$t0 #luu nam 
+		move $v0,$s1 #luu nam lon
+    	
+    	#Restore thanh ghi
+    	lw $ra, 0($sp)
+    	lw $t0, 4($sp)
+    	lw $s0, 8($sp)
+    	lw $s1, 12($sp)
+    	#Xoa stack
+    	addi $sp, $sp, 16
+    	jr $ra
 #############
 CONVERTSTRING: #(Time* ,int) 
 #Khai bao stack
@@ -1208,29 +1271,29 @@ LeapYear: #(int Nam)
 	li $t1, 400
 	div $a0, $t1  #nam/400
 	mfhi $t1 # so du cua phep chia cho 400
-	beq $0, $t1 True #neu so du = 0 thuc thi nhan True
+	beq $0, $t1 ,True #neu so du = 0 thuc thi nhan True
 	li $t1, 4
 	div $a0, $t1  #nam/4
 	mfhi $t1 # so du cua phep chia cho 14
 	beq $0, $t1 YearDIV100
+	j  False
   YearDIV100:
 	li $t1, 100
 	div $a0, $t1  #nam/100
 	mfhi $t1 # so du cua phep chia cho 100
 	beq $t1, $0, False
+	j True
    False:
 	li $v0, 0 #tra ve 0 khi nam khong phai nam nhuan
-	lw $t1, 0($sp)
-	lw $t0, 4($sp)
-	lw $ra, 8($sp)
-	addi $sp,$sp,12
-	jr $ra
+	j LeapYear.Exit
    True:
 	li $v0, 1 #tra ve 1 khi nam la nam nhuan
+	LeapYear.Exit:
 	#Restore thanh ghi
 	lw $t1, 0($sp)
 	lw $t0, 4($sp)
 	lw $ra, 8($sp)
+	
 	# Xoa stack
 	addi $sp,$sp,12
 	jr $ra
@@ -1807,5 +1870,106 @@ NGAYHIENTAIDENCUOITHANG:#(Focus*,int thang)
 	lw $s3,24($sp)
 	#xoa stack
 	addi $sp,$sp,28
+	#tra ve
+	jr $ra
+######################
+KiemTraTungKiTu:#(char) tra ve 1 neu ki tu la '0' ->'9',nguoc lai tra ve 0
+	#Khai bao stack
+	addi $sp,$sp,-16
+	sw $ra,($sp)
+	sw $s0,4($sp)
+	sw $t0,8($sp)
+	sw $t1,12($sp)
+#Than thu tuc
+	addi $s0,$a0,-48
+	slt $t0,$s0,$0
+	bne $t0,$0,KiemTraTungKiTu.False
+	li $t0,10 #($s0>10)
+	slt $t1,$t0,$s0
+	bne $t1,$0,KiemTraTungKiTu.False
+	li $v0,1
+	j KiemTraTungKiTu.Exit
+	KiemTraTungKiTu.False:
+		li $v0,0
+	KiemTraTungKiTu.Exit:
+#Cuoi thu tuc	
+	#restore thanh ghi
+	lw $ra,($sp)
+	lw $s0,4($sp)
+	lw $t0,8($sp)
+	lw $t1,12($sp)
+	#xoa stack
+	addi $sp,$sp,16
+	#tra ve
+	jr $ra
+KiemTraNgayHopLe:#Time*, Focus*        tra ve 0 neu ngay nhap sai,nguoc lai 1 neu dung
+	#Khai bao stack
+	addi $sp,$sp,-24
+	sw $ra,($sp)
+	sw $s0,4($sp)
+	sw $s1,8($sp)
+	sw $t0,12($sp)
+	sw $t1,16($sp)
+	sw $t2,20($sp)
+#Than thu tuc
+	move $s0,$a0
+	move $s1,$a1
+	
+	lb $a0,($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	lb $a0,1($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	
+	lb $a0,3($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	lb $a0,4($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	
+	lb $a0,6($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	lb $a0,7($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	lb $a0,8($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	lb $a0,9($s0)
+	jal KiemTraTungKiTu
+	beq $v0,$0,KiemTraNgayHopLe.False
+	
+	#thang >12 sai
+	li $t0,12
+	lw $t1,4($s1)
+	slt $t2,$t0,$t1
+	bne $t2,$0,KiemTraNgayHopLe.False
+	# ngay >ngaynhieunhatcuathang    sai
+	lw $a0,4($s1)
+	lw $a1,8($s1)
+	lw $t0,($s1)
+	jal SoNgayTrongThang
+	slt $t1,$v0,$t0
+	bne $t1,$0,KiemTraNgayHopLe.False
+	
+	li $v0,1 #dung
+	j KiemTraNgayHopLe.Exit
+	
+	KiemTraNgayHopLe.False:
+		li $v0,0
+	KiemTraNgayHopLe.Exit:
+#Cuoi thu tuc	
+	#restore thanh ghi
+	lw $ra,($sp)
+	lw $s0,4($sp)
+	lw $s1,8($sp)
+	lw $t0,12($sp)
+	lw $t1,16($sp)
+	lw $t2,20($sp)
+	#xoa stack
+	addi $sp,$sp,24
 	#tra ve
 	jr $ra
