@@ -254,7 +254,7 @@ MENU:
 	addi $sp,$sp,4
 	jr $ra
 
-KhoiTaoFOCUS:
+KhoiTaoFOCUS:#(Time,Focus)
 	#Khai bao stack
 	addi $sp,$sp,-12
 	sw $ra,($sp)
