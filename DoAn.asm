@@ -164,6 +164,7 @@ Main:
 		CHUCNANG.MENU7:
 			addi $t1,$s0,-7
 			bne $t1,$0,CHUCNANG.MENU8
+			KHOITAO1:
 				li $v0,4
 				la $a0,Note
 				syscall
@@ -172,6 +173,7 @@ Main:
  				la $a0,Time1
  				la $a1,Focus1
 				jal KhoiTaoFOCUS
+				
 			li $v0,4
 			la $a0,Result
 			syscall
@@ -592,20 +594,20 @@ XULI4:#(Focus*)
 	mfhi $s1
 	la $s2,kq4
 	bne $s1,$0,XULI4.T3
-	#luu vao chuoi
-	li $t0,'M'
+	li $t0,'S'
 	sb $t0,($s2)
 	addi $s2,$s2,1
-	li $t0,'o'
+	li $t0,'u'
 	sb $t0,($s2)
 	addi $s2,$s2,1
 	li $t0,'n'
 	sb $t0,($s2)
 	addi $s2,$s2,1
+	
 	j XULI4.Exit
 	
 	XULI4.T3:
-		addi $t0,$s1,-1
+		addi $t0,$s1,-2
 		bne $t0,$0,XULI4.T4
 		#luu vao chuoi
 		li $t0,'T'
@@ -619,7 +621,7 @@ XULI4:#(Focus*)
 		addi $s2,$s2,1
 		j XULI4.Exit
 	XULI4.T4:
-		addi $t0,$s1,-2
+		addi $t0,$s1,-3
 		bne $t0,$0,XULI4.T5
 		#luu
 		li $t0,'W'
@@ -633,7 +635,7 @@ XULI4:#(Focus*)
 		addi $s2,$s2,1
 		j XULI4.Exit
 	XULI4.T5:
-		addi $t0,$s1,-3
+		addi $t0,$s1,-4
 		bne $t0,$0,XULI4.T6
 		#
 		li $t0,'T'
@@ -647,7 +649,7 @@ XULI4:#(Focus*)
 		addi $s2,$s2,1
 		j XULI4.Exit
 	XULI4.T6:
-		addi $t0,$s1,-4
+		addi $t0,$s1,-5
 		bne $t0,$0,XULI4.T7
 		
 		#
@@ -662,7 +664,7 @@ XULI4:#(Focus*)
 		addi $s2,$s2,1
 		j XULI4.Exit
 	XULI4.T7:
-		addi $t0,$s1,-5
+		addi $t0,$s1,-6
 		bne $t0,$0,XULI4.Cn
 		
 		#
@@ -677,13 +679,14 @@ XULI4:#(Focus*)
 		addi $s2,$s2,1
 		j XULI4.Exit
 	XULI4.Cn:
-		addi $t0,$s1,-6
+		addi $t0,$s1,-1
 		bne $t0,$0,XULI4.Exit
 		#
-		li $t0,'S'
+		#luu vao chuoi
+		li $t0,'M'
 		sb $t0,($s2)
 		addi $s2,$s2,1
-		li $t0,'u'
+		li $t0,'o'
 		sb $t0,($s2)
 		addi $s2,$s2,1
 		li $t0,'n'
