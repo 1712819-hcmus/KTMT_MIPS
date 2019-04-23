@@ -210,6 +210,16 @@ Main:
 			syscall
 			j CHUCNANG
 		CHUCNANG.MENU9:		
+			addi $t1,$s0,-9
+			bne $t1,$0,THOATCT
+			#xu li 1 
+			la $a0,Time 
+			la $a1,kq2A
+			jal XULI2.1
+			#ghi kq2A vao file
+			la $v0,4
+			la $a0,kq2A
+			syscall
 	THOATCT:	
 		li $v0,10
 		syscall
@@ -1218,6 +1228,9 @@ XULI8:# (Focus*) ---> tra ve $v0,$v1 2 nam nhuan gan nhat
     	addi $sp, $sp, 16
     	jr $ra
 #############
+XULI9:
+
+##############
 CONVERTSTRING: #(Time* ,int) 
 #Khai bao stack
 	addi $sp,$sp,-24
