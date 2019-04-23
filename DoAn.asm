@@ -92,6 +92,7 @@ Main:
 			addi $t1,$s0,-1
 			bne $t1,$0,CHUCNANG.MENU2B
 			la $a0,Time 
+			la $a1,kq2A
 			jal XULI2.1
 			li $v0,4
 			la $a0,kq2A
@@ -102,6 +103,7 @@ Main:
 				bne $t1,$0,CHUCNANG.MENU2C
 				la $a0,Time
 				la $a1,Focus
+				la $a2,kq2B
 				jal XULI2.2
 				li $v0,4
 				la $a0,kq2B
@@ -112,6 +114,7 @@ Main:
 				bne $t1,$0,CHUCNANG.MENU2ERRO
 				la $a0,Time
 				la $a1,Focus
+				la $a2,kq2C
 				jal XULI2.3
 				li $v0,4
 				la $a0,kq2C
@@ -138,6 +141,7 @@ Main:
 			li $v0,4
 			syscall
 			la $a0,Focus
+			la $a1,kq4
 			jal XULI4
 			li $v0,4
 			la $a0,kq4
@@ -156,6 +160,7 @@ Main:
 			li $v0,4
 			syscall
 			la $a0,Focus
+			la $a1,kq6
 			jal XULI6
 			li $v0,4
 			la $a0,kq6
@@ -385,7 +390,7 @@ NHAPTIME:
 	#tra ve
 	jr $ra
 #####################
-XULI2.1:#(Time*)
+XULI2.1:#(Time*,kq)->tra ve kq
 	#Khai bao stack
 	addi $sp,$sp,-16
 	sw $ra,($sp)
@@ -394,7 +399,7 @@ XULI2.1:#(Time*)
 	sw $t0,12($sp)
 #Than thu tuc
 	move $s0,$a0
-	la $s1,kq2A
+	move $s1,$a1
 	
 	lb $t0,3($s0)
 	sb $t0,($s1)
@@ -447,7 +452,7 @@ XULI2.1:#(Time*)
 	jr $ra
 	
 ####################
-XULI2.2:#(Time*,Focus*)
+XULI2.2:#(Time*,Focus*,kq)-> kq
 	#Khai bao stack
 	addi $sp,$sp,-20
 	sw $ra,($sp)
@@ -458,7 +463,7 @@ XULI2.2:#(Time*,Focus*)
 #Than thu tuc
 	move $s0,$a0
 	move $s1,$a1
-	la $s2,kq2B
+	move $s2,$a2
 	la $a0,($s2)
 	lw $a1,4($s1)
 	jal GhiThangBangChu
@@ -496,7 +501,7 @@ XULI2.2:#(Time*,Focus*)
 	#tra ve
 	jr $ra
 ####################
-XULI2.3:#(Time*,Focus*)
+XULI2.3:#(Time*,Focus*,kq)-> tra ve kq
 	#Khai bao stack
 	addi $sp,$sp,-20
 	sw $ra,($sp)
@@ -507,7 +512,7 @@ XULI2.3:#(Time*,Focus*)
 #Than thu tuc
 	move $s0,$a0
 	move $s1,$a1
-	la $s2,kq2C
+	move $s2,$a2
 	
 	lb $t0,($s0)
 	sb $t0,($s2)
@@ -580,7 +585,7 @@ XULI3:#(Focus*)
 	jr $ra
 
 ##############
-XULI4:#(Focus*)
+XULI4:#(Focus*,kq)->kq
 	addi $sp,$sp,-20
 	sw $ra,($sp)
 	sw $s0,4($sp)
@@ -588,11 +593,11 @@ XULI4:#(Focus*)
 	sw $t0,12($sp)
 	sw $s2,16($sp)
 #Than thu tuc
+	move $s2,$a1
 	jal TONGSONGAY
 	li $s0,7
 	div $v0,$s0
 	mfhi $s1
-	la $s2,kq4
 	bne $s1,$0,XULI4.T3
 	li $t0,'S'
 	sb $t0,($s2)
@@ -725,7 +730,7 @@ XULI5:#(Focus*)
 	addi $sp,$sp,8
 	jr $ra
 #############
-XULI6:# tham so: Focus* , tra ve kq6
+XULI6:# (tham so: Focus* , kq) tra ve kq
 	#Khai bao stack
 	addi $sp,$sp,-24
 	sw $ra,($sp)
@@ -736,10 +741,10 @@ XULI6:# tham so: Focus* , tra ve kq6
 	sw $t1,20($sp)
 #Than thu tuc
 	lw $s0,8($a0) # nam 
+	move $s2,$a1
 	li $t1,10   #can
 	div $s0,$t1
 	mfhi $t1
-	la $s2,kq6
 	
 	bne $t1,$0,XULI6.Tan
 	#luu vao chuoi
